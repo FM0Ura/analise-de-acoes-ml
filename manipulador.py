@@ -38,12 +38,12 @@ def adicionar_colunas_calculadas(base: pd.DataFrame) -> pd.DataFrame:
 
     return base
 
-def aplicar_RL(base: pd.DataFrame, features, target, nome_base):
+def aplicar_RL(base: pd.DataFrame, features, target:str, nome_base:str, percentual_teste:float, estado_randomico: int = 0):
 
     X = base[features]
     y = base[target]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=percentual_teste, shuffle=False,random_state=estado_randomico)
 
     model = LinearRegression()
     model.fit(X_train, y_train)
@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
     petr4 = adicionar_colunas_calculadas(petr4)
 
-    colunas = ['MA_5', 'Volatility_5']
-    target = 'Close'
+    colunas = ['Close', 'Open', 'High', 'Low', 'Volume']
+    target = 'MA_5'
 
-    aplicar_RL(petr3 ,colunas, target, 'PETR3')
-    aplicar_RL(petr4 ,colunas, target, 'PETR4')
+    aplicar_RL(petr3 ,colunas, target, 'PETR3', percentual_teste=0.3)
+    aplicar_RL(petr4 ,colunas, target, 'PETR4', percentual_teste=0.3)
