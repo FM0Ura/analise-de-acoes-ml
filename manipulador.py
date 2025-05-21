@@ -38,33 +38,29 @@ def adicionar_colunas_calculadas(base: pd.DataFrame) -> pd.DataFrame:
 
     return base
 
-def aplicar_RL(base, features, target):
+def aplicar_RL(base: pd.DataFrame, features, target, nome_base):
 
     X = base[features]
     y = base[target]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
-    # 8. Treinamento do modelo
     model = LinearRegression()
     model.fit(X_train, y_train)
 
-    # 9. Previsões
     y_pred = model.predict(X_test)
 
-    # 10. Avaliação
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
     print(f"Mean Squared Error: {mse:.4f}")
     print(f"R² Score: {r2:.4f}")
 
-    # 11. Plotar gráfico de valores reais vs previstos
-    plt.figure(figsize=(20, 6))
+    plt.figure(figsize=(12, 6))
     plt.plot(base['Date'].iloc[-len(y_test):], y_test, label='Valor Real', color='blue')
     plt.plot(base['Date'].iloc[-len(y_pred):], y_pred, label='Valor Previsto', color='red', linestyle='--')
     plt.xlabel('Data')
     plt.ylabel('Preço de Fechamento (Close)')
-    plt.title('Regressão Linear - Valor Real vs Valor Previsto')
+    plt.title(f'{nome_base} - Regressão Linear - Valor Real vs Valor Previsto')
     plt.legend()
     plt.grid(True)
     plt.xticks(rotation=45)
@@ -81,7 +77,16 @@ if __name__ == "__main__":
 
     petr3 = adicionar_colunas_calculadas(petr3)
 
-    colunas = ['Open', 'High', 'Low', 'Volume', 'MA_5', 'Volatility_5']
+    petr4 = base.query("Ticker == 'PTR4'")
+
+    petr4['Ticker'] = petr4['Ticker'].astype(str).replace('PTR4', "PETR4")
+
+    petr4 = limpar_dados(petr4)
+
+    petr4 = adicionar_colunas_calculadas(petr4)
+
+    colunas = ['MA_5', 'Volatility_5']
     target = 'Close'
 
-    aplicar_RL(petr3 ,colunas, target)
+    aplicar_RL(petr3 ,colunas, target, 'PETR3')
+    aplicar_RL(petr4 ,colunas, target, 'PETR4')
