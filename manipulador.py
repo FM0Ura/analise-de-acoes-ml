@@ -38,12 +38,11 @@ def adicionar_colunas_calculadas(base: pd.DataFrame) -> pd.DataFrame:
 
     return base
 
-def aplicar_RL(base: pd.DataFrame, features, target:str, nome_base:str, percentual_teste:float, estado_randomico: int = 0):
-
-    X = base[features]
+def aplicar_RL_simples(base: pd.DataFrame, feature: str, target: str, nome_base: str, percentual_teste: float, estado_randomico: int = 0):
+    X = base[[feature]]
     y = base[target]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=percentual_teste, shuffle=False,random_state=estado_randomico)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=percentual_teste, shuffle=False, random_state=estado_randomico)
 
     model = LinearRegression()
     model.fit(X_train, y_train)
@@ -52,18 +51,17 @@ def aplicar_RL(base: pd.DataFrame, features, target:str, nome_base:str, percentu
 
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
-    print(f"Mean Squared Error: {mse:.4f}")
-    print(f"R² Score: {r2:.4f}")
+    print(f"[{nome_base} - RL Simples] MSE: {mse:.4f} | R²: {r2:.4f}")
 
-    plt.figure(figsize=(12, 6))
-    plt.plot(base['Date'].iloc[-len(y_test):], y_test, label='Valor Real', color='blue')
-    plt.plot(base['Date'].iloc[-len(y_pred):], y_pred, label='Valor Previsto', color='red', linestyle='--')
-    plt.xlabel('Data')
-    plt.ylabel('Preço de Fechamento (Close)')
-    plt.title(f'{nome_base} - Regressão Linear - Valor Real vs Valor Previsto')
+    # Gráfico MA_5 vs Close (com linha de regressão)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(X_test, y_test, color='blue', label='Valor Real')
+    plt.plot(X_test, y_pred, color='red', label='Valor Previsto (Regressão)', linewidth=2)
+    plt.xlabel(feature)
+    plt.ylabel(target)
+    plt.title(f'{nome_base} - Regressão Linear Simples: {feature} vs {target}')
     plt.legend()
     plt.grid(True)
-    plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
 
